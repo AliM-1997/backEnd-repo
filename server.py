@@ -1,8 +1,13 @@
+import yaml
+import os
 
 class Server:
-    def __init__(self, serverIPAdress=None, localIP=None) -> None:
-        self.serverIP = serverIPAdress
-        self.localIP = localIP
+    def __init__(self,config_path=None) -> None:
+        with open(config_path,'r') as file:
+            self.reader=yaml.safe_load(file)
+        
+        self.serverIP = self.reader.get("serverIP",None)
+        self.localIP = self.reader.get("localIP",None)
         self.clients = []
         self.is_running = False
 
@@ -28,10 +33,16 @@ class Server:
         return self.clients
 
 if __name__ == "__main__":
-    server = Server("192.168.1.100", "192.168.1.1")
+    config_name="config.yaml"
+    parent_directory=os.getcwd()
+    print(parent_directory)
+    config_path=os.path.join(parent_directory,config_name)
+
+    server = Server(config_path)
     server.start_server()
     server.add_client("Client A")
     server.add_client("Client B")
     print(f"Clients connected: {server.get_clients()}")
     server.remove_client("Client A")
     server.stop_server()
+
